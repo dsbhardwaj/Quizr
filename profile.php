@@ -53,8 +53,9 @@ td {
   border-bottom: 1px solid #444;
 }
 
+
 /* Responsive for small screens */
-@media (max-width: 600px) {
+@media (max-width: 600px) 
   table {
     width: 100%;
   }
@@ -87,10 +88,107 @@ td {
     border-radius: 10px;
     padding: 10px;
   }
+
+
+
+
+      /* Navbar */
+.navbar {
+    display: flex;
+    justify-content: space-between;  /* spreads items */
+    align-items: center;
+    padding: 15px 30px;
+    background: #1e1e1e;
+    color: white;
+    height: 73px;
+}
+
+.navbar a {
+    margin: 0 15px;
+    text-decoration: none;
+    color: white;
+}
+    .navbar .logo {
+      font-size: 24px;
+      color: #00cc99;
+      font-weight: bold;
+    }
+
+
+
+    .navbar a:hover {
+      color: #00cc99;
+    }
+
+    .navbar form {
+      display: inline;
+    }
+
+    .navbar button {
+      background: none;
+      border: none;
+      color: white;
+      font-size: 16px;
+      cursor: pointer;
+      margin-left: 10px;
+    }
+
+    .navbar button:hover {
+      color: #00cc99;
+    }
+
+    /* Dropdown */
+    .dropdown {
+      position: relative;
+      display: inline-block;
+    }
+
+    .dropbtn {
+      background-color: #2a2a2a;
+      color: white;
+      padding: 10px 16px;
+      font-size: 14px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    .dropdown-content {
+      display: none;
+      position: absolute;
+      background-color: #333;
+      min-width: 160px;
+      box-shadow: 0px 8px 16px rgba(0,0,0,0.3);
+      z-index: 1;
+      border-radius: 5px;
+    }
+
+    .dropdown-content a {
+      color: white;
+      padding: 12px 16px;
+      text-decoration: none;
+      display: block;
+      border-bottom: 1px solid #444;
+    }
+
+    .dropdown-content a:hover {
+      background-color: #00cc99;
+      color: black;
+    }
+
+    .dropdown:hover .dropdown-content {
+      display: block;
+    }
+
+    .dropdown:hover .dropbtn {
+      background-color: #444;
+
+}
   </style>
 </head>
 <body>
-    <h1>USER'S PROFILE</h1>
+
+    
     <tr>
           <table class="table"> 
        <thead>
@@ -111,7 +209,7 @@ if (isset($_GET['id']) && is_numeric($_GET['id']) && (int)$_GET['id'] > 0) {
     echo "Invalid or missing ID in URL.";
 }
 if ($id ) {
-   $sql = "SELECT * FROM admin WHERE id = '$id'";
+   $sql = "SELECT * FROM users WHERE id = '$id'";
  
     $result = $data->query($sql);
     if (!$result) {
@@ -135,6 +233,36 @@ if ($id ) {
 }
 ?>
 </tbody>
+
+
+<?php
+if (!isset($_GET['id'])) {
+    die("User ID missing");
+}
+$user_id = $_GET['id'];
+?>
+
+<div class="page">
+  <div class="navbar">
+    <div class="logo">User's Profile</div>
+
+    <a href="user.php?id=<?php echo $user_id; ?>">Dashboard</a>
+    <a href="scoreboard.php?id=<?php echo $user_id; ?>">Scoreboard</a>
+    <a href="logout.php">Logout</a>
+
+    <div class="dropdown">
+      <button class="dropbtn">QUIZZES ▼</button>
+
+      <div class="dropdown-content">
+        <a href="quiz.php?subject=Aptitude&id=<?php echo $user_id; ?>">Aptitude</a>
+        <a href="quiz.php?subject=Logical_Reasoning&id=<?php echo $user_id; ?>">Logical Reasoning</a>
+        <a href="quiz.php?subject=Data_Structure&id=<?php echo $user_id; ?>">Data Structure</a>
+        <a href="quiz.php?subject=Web_Development&id=<?php echo $user_id; ?>">Web Development</a>
+        <a href="quiz.php?subject=DBMS&id=<?php echo $user_id; ?>">DBMS</a>
+      </div>
+    </div>
+  </div>
+</div>
   
 </body>
 </html>

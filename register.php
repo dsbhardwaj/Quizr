@@ -94,28 +94,90 @@ include "connection.php";
 <?php
 include "connection.php";
 
+
+
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
+
+require 'PHPMailer/src/PHPMailer.php';
+require 'PHPMailer/src/SMTP.php';
+require 'PHPMailer/src/Exception.php';
+
+
+
+
+
+
 if(isset($_POST['submit'])){
-  $username = $_POST['username'];
-  $email = $_POST['email'];
+  $username = mysqli_real_escape_string($data, $_POST['username']);
+  $email = mysqli_real_escape_string($data, $_POST['email']);
   $password = $_POST['password'];
   $cpassword = $_POST['cpass'];
 
-  $sql = "SELECT * FROM admin WHERE email = '$email'";
+  // check email exists
+  $sql = "SELECT * FROM users WHERE email = '$email'";
   $result = mysqli_query($data, $sql);
   $count_email = mysqli_num_rows($result);
 
   if ($count_email == 0) {
-    if ($password == $cpassword) {
-      $sql = "INSERT INTO admin (name, email, password) VALUES ('$username', '$email', '$password')";
-      $result = mysqli_query($data, $sql);
-      if ($result) {
-        echo "<script>alert('Registration successful'); window.location.href='login.php';</script>";
-      }
-    } else {
-      echo "<script>alert('Password mismatch');</script>";
+
+    if ($password === $cpassword) {
+
+      // 🔥 HASH PASSWORD HERE
+      $hashed_password = password_hash($password, PASSWORD_DEFAULT);
+
+
+       $token = bin2hex(random_bytes(16));
+
+
+
+
+      $sql = "INSERT INTO users (name, email, password , status , token) 
+              VALUES ('$username', '$email', '$hashed_password' , 0 , '$token')";
+
+      if (mysqli_query($data, $sql)) {
+
+    $mail = new PHPMailer(true);
+
+    try {
+        $mail->isSMTP();
+        $mail->SMTPDebug = 2; // 🔥 debug ON
+
+        $mail->Host = 'smtp.gmail.com';
+        $mail->SMTPAuth = true;
+
+        $mail->Username = 'drishtiibhardwaj@gmail.com';
+        $mail->Password = 'cnhmsxzckbxxadqn';
+
+        $mail->SMTPSecure = 'tls';
+        $mail->Port = 587;
+
+        $mail->setFrom('drishtiibhardwaj@gmail.com', 'Quiz Platform');
+        $mail->addAddress($email);
+
+        $mail->isHTML(true);
+        $mail->Subject = 'Welcome to Quiz Platform';
+
+        
+         $mail->Body = "
+    <h2>Welcome, $username 👋</h2>
+    <p>Click below to verify your account:</p>
+    <a href='http://localhost/FINAL-PROJECT/verify.php?token=$token'>
+        Verify Account
+    </a>
+";
+        $mail->send();
+
+        echo "✅ Email sent successfully";
+        exit;
+
+    } catch (Exception $e) {
+        echo "❌ Email failed: {$mail->ErrorInfo}";
+        exit;
     }
-  } else {
-    echo "<script>alert('Email already exists');</script>";
+}
+    }
   }
 }
+
 ?>

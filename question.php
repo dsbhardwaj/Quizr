@@ -2,7 +2,7 @@
 include "connection.php";
 
 $subject = $_GET['subject'] ?? '';
-$allowedSubjects = ['maths', 'english', 'physics', 'chemistry', 'reasoning'];
+$allowedSubjects = ['maths', 'english', 'physics', 'Logical Reasoning', 'reasoning'];
 
 // Validate subject
 if (!in_array($subject, $allowedSubjects)) {

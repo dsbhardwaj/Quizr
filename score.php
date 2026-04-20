@@ -99,61 +99,83 @@ td {
 <h1>YOUR RESULT</h1>
 
 <?php
+session_start();
 include "connection.php";
 
-$id = $_GET['id'] ?? '';
-$subject = $_GET['subject'] ?? '';
+// sanitize inputs
+$id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
+$subject = mysqli_real_escape_string($data, $_GET['subject'] ?? '');
 $answers = $_POST['answers'] ?? [];
 
-$allowedSubjects = ['maths', 'english', 'physics', 'chemistry', 'reasoning'];
-if (!in_array($subject, $allowedSubjects)) {
+// prevent empty submission
+if (empty($answers)) {
+    die("No answers submitted.");
+}
+
+// get subject_id
+$subject_query = "SELECT id FROM subjects WHERE name = '$subject'";
+$res = mysqli_query($data, $subject_query);
+
+if (mysqli_num_rows($res) == 0) {
     die("Invalid subject.");
 }
 
-if (!empty($answers)) {
-    $score = 0;
-    $total = count($answers);
-    $q_ids = implode(",", array_keys($answers));
+$row = mysqli_fetch_assoc($res);
+$subject_id = $row['id'];
 
-    $query = "SELECT q_id, correct_answer FROM `$subject` WHERE q_id IN ($q_ids)";
-    $result = mysqli_query($data, $query);
+// get correct answers
+$q_ids = implode(",", array_keys($answers));
 
-    $correct_answers = [];
-    while ($row = mysqli_fetch_assoc($result)) {
-        $correct_answers[$row['q_id']] = $row['correct_answer'];
-    }
+$query = "SELECT id, correct_answer FROM questions 
+          WHERE subject_id = $subject_id 
+          AND id IN ($q_ids)";
 
-    foreach ($answers as $q_id => $user_answer) {
-        if (isset($correct_answers[$q_id]) && $user_answer == $correct_answers[$q_id]) {
-            $score++;
-        }
-    }
+$result = mysqli_query($data, $query);
 
-    // Insert result into database
-    $insert = "INSERT INTO result (user_id, exam_name, correct_ques, total_ques)
-               VALUES ('$id', '$subject', '$score', '$total')";
-    mysqli_query($data, $insert);
-
-    // Display result
-    echo "<table border='1' cellpadding='10'>
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Subject</th>
-                    <th>Score</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td>$id</td>
-                    <td>$subject</td>
-                    <td>$score / $total</td>
-                </tr>
-            </tbody>
-          </table>";
-} else {
-    echo "<p>No answers submitted.</p>";
+$correct_answers = [];
+while ($row = mysqli_fetch_assoc($result)) {
+    $correct_answers[$row['id']] = $row['correct_answer'];
 }
+
+// calculate score
+$score = 0;
+$total = count($answers);
+
+foreach ($answers as $q_id => $user_answer) {
+    if (isset($correct_answers[$q_id]) && $user_answer == $correct_answers[$q_id]) {
+        $score++;
+    }
+}
+
+// prevent duplicate submission
+if (!isset($_SESSION['submitted'])) {
+
+    $_SESSION['submitted'] = true;
+
+    // insert result
+    $insert = "INSERT INTO result (user_id, subject_id, score, total_ques)
+               VALUES ($id, $subject_id, $score, $total)";
+
+    mysqli_query($data, $insert);
+}
+
+// display result
+echo "<table border='1' cellpadding='10'>
+        <thead>
+            <tr>
+                <th>User ID</th>
+                <th>Subject</th>
+                <th>Score</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>$id</td>
+                <td>$subject</td>
+                <td>$score / $total</td>
+            </tr>
+        </tbody>
+      </table>";
 ?>
 
 </body>
