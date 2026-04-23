@@ -147,17 +147,14 @@ foreach ($answers as $q_id => $user_answer) {
     }
 }
 
-// prevent duplicate submission
-if (!isset($_SESSION['submitted'])) {
 
-    $_SESSION['submitted'] = true;
+$insert = "INSERT INTO result (user_id, subject_id, score, total_ques)
+           VALUES ($id, $subject_id, $score, $total)";
 
-    // insert result
-    $insert = "INSERT INTO result (user_id, subject_id, score, total_ques)
-               VALUES ($id, $subject_id, $score, $total)";
+mysqli_query($data, $insert);
 
-    mysqli_query($data, $insert);
-}
+header("Location: result.php?score=$score&total=$total&subject=$subject");
+exit();
 
 // display result
 echo "<table border='1' cellpadding='10'>

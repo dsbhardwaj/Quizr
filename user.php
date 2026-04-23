@@ -223,6 +223,8 @@ $id = $_SESSION['user_id'];
 
 //**********************ANALYTICS CODE *********************************
 
+
+
 $user_id = $_SESSION['user_id'];
 
 $query = "SELECT * FROM result WHERE user_id = $user_id";
@@ -279,11 +281,35 @@ LIMIT 1";
 
 $weak_result = mysqli_query($data, $weak_query);
 $weak = mysqli_fetch_assoc($weak_result);
-?>
 
 
 
- <?php
+$attempt_data = [];
+
+$stmt = $data->prepare("
+    SELECT s.name, COUNT(*) AS attempts
+    FROM result r
+    JOIN subjects s ON r.subject_id = s.id
+    WHERE r.user_id = ?
+    GROUP BY s.id
+");
+
+if (!$stmt) {
+    die("Prepare failed: " . $data->error);
+}
+
+$stmt->bind_param("i", $user_id);
+$stmt->execute();
+
+$res = $stmt->get_result();
+
+while ($row = $res->fetch_assoc()) {
+    $attempt_data[$row['name']] = $row['attempts'];
+}
+
+
+
+
 
 
 $sql = "select * from users where id = '$id' ";
@@ -370,6 +396,18 @@ if($row=$result->fetch_assoc()) {?>
 
 </div>
 
+
+<h3>Your Attempts</h3>
+
+<?php
+if (!empty($attempt_data)) {
+    foreach ($attempt_data as $subject => $attempts) {
+        echo "Subject $subject: $attempts attempts <br>";
+    }
+} else {
+    echo "No attempts yet.";
+}
+?>
 <?php } ?>
 
 </body>

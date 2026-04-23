@@ -31,8 +31,7 @@ $result = mysqli_query($data, $sql);
 
 <h2><?php echo strtoupper($subject); ?> QUIZ</h2>
 
-<form method="POST" action="score.php?id=<?php echo $_GET['id']; ?>&subject=<?php echo $subject; ?>" ?>
-
+<form method="POST" action="score.php?id=<?php echo $_GET['id']; ?>&subject=<?php echo $subject; ?>"
 <?php
 $qno = 1;
 while ($row = mysqli_fetch_assoc($result)) {
