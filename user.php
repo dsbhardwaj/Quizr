@@ -1,209 +1,3 @@
-
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>user dashboard</title>
-  <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    }
-
-    body {
-      background-color: #121212;
-      color: white;
-    }
-
-    /* Navbar */
-.navbar {
-    display: flex;
-    justify-content: space-between;  /* spreads items */
-    align-items: center;
-    padding: 15px 30px;
-    background: #1e1e1e;
-    color: white;
-    height: 73px;
-}
-
-.navbar a {
-    margin: 0 15px;
-    text-decoration: none;
-    color: white;
-}
-    .navbar .logo {
-      font-size: 24px;
-      color: #00cc99;
-      font-weight: bold;
-    }
-
-
-
-    .navbar a:hover {
-      color: #00cc99;
-    }
-
-    .navbar form {
-      display: inline;
-    }
-
-    .navbar button {
-      background: none;
-      border: none;
-      color: white;
-      font-size: 16px;
-      cursor: pointer;
-      margin-left: 10px;
-    }
-
-    .navbar button:hover {
-      color: #00cc99;
-    }
-
-    /* Dropdown */
-    .dropdown {
-      position: relative;
-      display: inline-block;
-    }
-
-    .dropbtn {
-      background-color: #2a2a2a;
-      color: white;
-      padding: 10px 16px;
-      font-size: 14px;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-    }
-
-    .dropdown-content {
-      display: none;
-      position: absolute;
-      background-color: #333;
-      min-width: 160px;
-      box-shadow: 0px 8px 16px rgba(0,0,0,0.3);
-      z-index: 1;
-      border-radius: 5px;
-    }
-
-    .dropdown-content a {
-      color: white;
-      padding: 12px 16px;
-      text-decoration: none;
-      display: block;
-      border-bottom: 1px solid #444;
-    }
-
-    .dropdown-content a:hover {
-      background-color: #00cc99;
-      color: black;
-    }
-
-    .dropdown:hover .dropdown-content {
-      display: block;
-    }
-
-    .dropdown:hover .dropbtn {
-      background-color: #444;
-
-}
-
-      .analytics-container {
-    display: flex;
-    gap: 20px;
-    margin: 20px 0;
-}
-
-.card {
-    background: #ffffff;
-    padding: 20px;
-    border-radius: 12px;
-    width: 200px;
-    text-align: center;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-    transition: 0.3s;
-}
-
-.card:hover {
-    transform: translateY(-5px);
-}
-
-.card h3 {
-    margin-bottom: 10px;
-    color: #555;
-}
-
-.card p {
-    font-size: 24px;
-    font-weight: bold;
-    color: #2c3e50;
-}
-    
-
-.main-content {
-    padding: 1px;
-    background: #f5f6fa;
-    min-height: 25vh;
-        display: flex;
-    align-items: center;
-    color: black;
-    margin-top:300px;
-    margin-right:150px;
-    margin-left: -900px;
-    padding-left: 75px;
-    padding-right: 87px;
-}
-
-
-.analytics-container {
-    display: flex;
-    gap: 20px;
-    margin-top: 20px;
-    margin-left: 13px;
-}
-
-
-.performance-section {
-  display: flex;
-  justify-content: center;
-  gap: 20px;
-  margin-top: 30px;
-}
-
-.card {
-  padding: 20px;
-  border-radius: 12px;
-  width: 220px;
-  text-align: center;
-  font-weight: bold;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-  
-}
-
-.strong {
-  background-color: #d4edda;
-  color: #155724;
-  margin-top:200px;
-}
-
-.weak {
-  background-color: #f8d7da;
-  color: #721c24;
- margin-top:200px;
-}
-
-.card span {
-  font-size: 22px;
-  display: block;
-  margin-top: 10px;
-}
-  </style>
-</head>
-<body>
-
 <?php
 session_start();
 
@@ -213,202 +7,656 @@ if (!isset($_SESSION['user_id'])) {
 }
 
 $id = $_SESSION['user_id'];
+include "connection.php";
 ?>
-  <?php 
-  include "connection.php";
-//   if (isset($_GET['id']) && is_numeric($_GET['id']) && (int)$_GET['id'] > 0) {
-//     $id = (int) $_GET['id'];
-// } 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>User Dashboard</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #f5f6fa;
+      color: #111110;
+      min-height: 100vh;
+    }
+
+    /* ── NAVBAR ── */
+    .navbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 24px;
+      height: 56px;
+      background: #ffffff;
+      border-bottom: 0.5px solid rgba(0,0,0,0.08);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .nav-logo {
+      font-size: 15px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      text-decoration: none;
+      color: #111110;
+    }
+
+    .nav-logo-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #1D9E75;
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .nav-link {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      border-radius: 8px;
+      font-size: 13px;
+      color: #6b6b6a;
+      text-decoration: none;
+      transition: all 0.12s;
+    }
+
+    .nav-link:hover {
+      background: #f0f0ef;
+      color: #111110;
+    }
+
+    /* ── DROPDOWN ── */
+    .dropdown {
+      position: relative;
+      display: inline-block;
+    }
+
+    .dropbtn {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 500;
+      color: #111110;
+      cursor: pointer;
+      border: 0.5px solid rgba(0,0,0,0.14);
+      background: #f0f0ef;
+      font-family: inherit;
+      transition: all 0.12s;
+    }
+
+    .dropbtn:hover {
+      background: #e5e5e3;
+    }
+
+    .dropdown-menu {
+      display: none;
+      position: absolute;
+      right: 0;
+      top: calc(100% + 6px);
+      background: #ffffff;
+      border: 0.5px solid rgba(0,0,0,0.14);
+      border-radius: 12px;
+      overflow: hidden;
+      z-index: 200;
+      min-width: 190px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+    }
+
+    .dropdown:hover .dropdown-menu {
+      display: block;
+    }
+
+    .dropdown-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 14px;
+      font-size: 13px;
+      color: #6b6b6a;
+      text-decoration: none;
+      border-bottom: 0.5px solid rgba(0,0,0,0.06);
+      transition: all 0.1s;
+    }
+
+    .dropdown-item:last-child {
+      border-bottom: none;
+    }
+
+    .dropdown-item:hover {
+      background: #f0f0ef;
+      color: #111110;
+    }
+
+    /* ── PAGE ── */
+    .page {
+      max-width: 820px;
+      margin: 0 auto;
+      padding: 32px 24px 56px;
+      display: flex;
+      flex-direction: column;
+      gap: 28px;
+    }
+
+    /* ── WELCOME ── */
+    .welcome-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .avatar-block {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .avatar {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: #E1F5EE;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      font-weight: 600;
+      color: #0F6E56;
+      flex-shrink: 0;
+    }
+
+    .welcome-name {
+      font-size: 20px;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+    }
+
+    .welcome-sub {
+      font-size: 13px;
+      color: #6b6b6a;
+      margin-top: 2px;
+    }
+
+    /* ── BUTTONS ── */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      font-family: inherit;
+      text-decoration: none;
+      transition: all 0.12s;
+    }
+
+    .btn-ghost {
+      border: 0.5px solid rgba(0,0,0,0.14);
+      background: transparent;
+      color: #111110;
+    }
+
+    .btn-ghost:hover {
+      background: #f0f0ef;
+    }
+
+    .btn-danger {
+      border: 0.5px solid #F7C1C1;
+      background: #FCEBEB;
+      color: #791F1F;
+    }
+
+    .btn-danger:hover {
+      background: #F7C1C1;
+    }
+
+    /* ── SECTION LABEL ── */
+    .section-label {
+      font-size: 11px;
+      font-weight: 600;
+      color: #6b6b6a;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 12px;
+    }
+
+    /* ── STATS GRID ── */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+    }
+
+    @media (max-width: 560px) {
+      .stats-grid { grid-template-columns: 1fr; }
+      .perf-grid  { grid-template-columns: 1fr; }
+    }
+
+    .stat-card {
+      background: #ffffff;
+      border: 0.5px solid rgba(0,0,0,0.08);
+      border-radius: 12px;
+      padding: 18px 20px;
+    }
+
+    .stat-label {
+      font-size: 12px;
+      color: #6b6b6a;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .stat-value {
+      font-size: 30px;
+      font-weight: 300;
+      letter-spacing: -0.03em;
+      line-height: 1;
+    }
+
+    .stat-sub {
+      font-size: 12px;
+      color: #6b6b6a;
+      margin-top: 6px;
+    }
+
+    /* ── PERFORMANCE ── */
+    .perf-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .perf-card {
+      border-radius: 12px;
+      padding: 20px;
+      border: 0.5px solid transparent;
+    }
+
+    .perf-card.strong {
+      background: #EAF3DE;
+      border-color: #C0DD97;
+    }
+
+    .perf-card.weak {
+      background: #FCEBEB;
+      border-color: #F7C1C1;
+    }
+
+    .perf-tag {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .perf-tag.strong { color: #3B6D11; }
+    .perf-tag.weak   { color: #A32D2D; }
+
+    .perf-subject {
+      font-size: 18px;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+    }
+
+    .perf-subject.strong { color: #27500A; }
+    .perf-subject.weak   { color: #791F1F; }
+
+    .perf-score {
+      font-size: 34px;
+      font-weight: 300;
+      letter-spacing: -0.03em;
+      margin-top: 4px;
+    }
+
+    .perf-score.strong { color: #3B6D11; }
+    .perf-score.weak   { color: #A32D2D; }
+
+    /* ── ATTEMPTS ── */
+    .attempts-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .attempt-row {
+      background: #ffffff;
+      border: 0.5px solid rgba(0,0,0,0.08);
+      border-radius: 12px;
+      padding: 14px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      transition: border-color 0.12s;
+    }
+
+    .attempt-row:hover {
+      border-color: rgba(0,0,0,0.16);
+    }
+
+    .attempt-info { flex: 1; min-width: 0; }
+
+    .attempt-name {
+      font-size: 14px;
+      font-weight: 500;
+    }
+
+    .attempt-meta {
+      font-size: 12px;
+      color: #6b6b6a;
+      margin-top: 2px;
+      margin-bottom: 8px;
+    }
+
+    .bar-wrap {
+      height: 4px;
+      background: #f0f0ef;
+      border-radius: 2px;
+      width: 100%;
+      overflow: hidden;
+    }
+
+    .bar-fill {
+      height: 100%;
+      border-radius: 2px;
+      background: #1D9E75;
+      transition: width 0.6s ease;
+    }
+
+    .bar-fill.low { background: #E24B4A; }
+
+    .attempt-badge {
+      font-size: 12px;
+      font-weight: 600;
+      padding: 4px 10px;
+      border-radius: 100px;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .badge-blue  { background: #E6F1FB; color: #0C447C; }
+    .badge-red   { background: #FCEBEB; color: #791F1F; }
+
+    /* ── EMPTY STATE ── */
+    .empty-state {
+      background: #ffffff;
+      border: 0.5px solid rgba(0,0,0,0.08);
+      border-radius: 12px;
+      padding: 32px;
+      text-align: center;
+      color: #6b6b6a;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+
+<?php
 
 
-//**********************ANALYTICS CODE *********************************
-
-
-
+// ── ANALYTICS ──
 $user_id = $_SESSION['user_id'];
 
 $query = "SELECT * FROM result WHERE user_id = $user_id";
 $result = mysqli_query($data, $query);
 
-$total_quizzes = 0;
-$total_score= 0;
+$total_quizzes  = 0;
+$total_score    = 0;
 $total_questions = 0;
 
-while ($row = mysqli_fetch_assoc($result)) {
+while ($row_r = mysqli_fetch_assoc($result)) {
     $total_quizzes++;
-    $total_score += $row['score'];
-    $total_questions += $row['total_ques'];
+    $total_score     += $row_r['score'];
+    $total_questions += $row_r['total_ques'];
 }
 
-// Accuracy
-$accuracy = ($total_questions > 0) ? ($total_score / $total_questions) * 100 : 0;
+$accuracy  = ($total_questions > 0) ? ($total_score / $total_questions) * 100 : 0;
+$avg_score = ($total_quizzes   > 0) ? ($total_score / $total_quizzes)         : 0;
 
-// Average score
-$avg_score = ($total_quizzes > 0) ? ($total_score / $total_quizzes) : 0;
-
-
-
-
-
-// make sure user_id exists
-$user_id = $_SESSION['user_id'] ?? 0;
-
-// STRONG SUBJECT
+// ── STRONG SUBJECT ──
 $strong_query = "
-SELECT s.name, 
-AVG((r.score * 100.0) / r.total_ques) AS avg_score
-FROM result r
-JOIN subjects s ON r.subject_id = s.id
-WHERE r.user_id = $user_id
-GROUP BY s.id
-ORDER BY avg_score DESC
-LIMIT 1";
-
+    SELECT s.name,
+           AVG((r.score * 100.0) / r.total_ques) AS avg_score
+    FROM result r
+    JOIN subjects s ON r.subject_id = s.id
+    WHERE r.user_id = $user_id
+    GROUP BY s.id
+    ORDER BY avg_score DESC
+    LIMIT 1";
 $strong_result = mysqli_query($data, $strong_query);
 $strong = mysqli_fetch_assoc($strong_result);
 
-
-// WEAK SUBJECT
+// ── WEAK SUBJECT ──
 $weak_query = "
-SELECT s.name, 
-AVG((r.score * 100.0) / r.total_ques) AS avg_score
-FROM result r
-JOIN subjects s ON r.subject_id = s.id
-WHERE r.user_id = $user_id
-GROUP BY s.id
-ORDER BY avg_score ASC
-LIMIT 1";
-
+    SELECT s.name,
+           AVG((r.score * 100.0) / r.total_ques) AS avg_score
+    FROM result r
+    JOIN subjects s ON r.subject_id = s.id
+    WHERE r.user_id = $user_id
+    GROUP BY s.id
+    ORDER BY avg_score ASC
+    LIMIT 1";
 $weak_result = mysqli_query($data, $weak_query);
 $weak = mysqli_fetch_assoc($weak_result);
 
-
-
+// ── ATTEMPTS PER SUBJECT ──
 $attempt_data = [];
-
 $stmt = $data->prepare("
-    SELECT s.name, COUNT(*) AS attempts
+    SELECT s.name,
+           COUNT(*) AS attempts,
+           AVG((r.score * 100.0) / r.total_ques) AS avg_pct
     FROM result r
     JOIN subjects s ON r.subject_id = s.id
     WHERE r.user_id = ?
     GROUP BY s.id
+    ORDER BY s.name
 ");
-
-if (!$stmt) {
-    die("Prepare failed: " . $data->error);
-}
-
-$stmt->bind_param("i", $user_id);
-$stmt->execute();
-
-$res = $stmt->get_result();
-
-while ($row = $res->fetch_assoc()) {
-    $attempt_data[$row['name']] = $row['attempts'];
-}
-
-
-
-
-
-
-$sql = "select * from users where id = '$id' ";
-$result = $data -> query($sql);
-if(!$result){
-    die("invalid query!");
-}
-if($row=$result->fetch_assoc()) {?>
-
-<div class="page">
-  <div class = "navbar">
-      <div class="logo">User Dashboard</div>
-     <a href="profile.php?id=<?php echo $row['id'];?>">profile</a> 
-  <a href="scoreboard.php?id=<?php echo $id; ?>">scoreboard</a>
-  <a action="logout.php" method="POST" href="logout.php">logout</a> 
-   
-   
-    <div class="dropdown">
-      <button class = "dropbtn">QUIZES  &#x25BC;</button>
-      <div class = "dropdown-content">
-        <a href="quiz.php?subject=Aptitude&id=<?php echo $row['id']; ?>">Aptitude</a>
-<a href="quiz.php?subject=Logical_Reasoning&id=<?php echo $row['id']; ?>">Logical Reasoning</a>
-<a href="quiz.php?subject=Data_Structure&id=<?php echo $row['id']; ?>">Data Structure
-</a>
-<a href="quiz.php?subject=Web_Development&id=<?php echo $row['id']; ?>">Web Development</a>
-<a href="quiz.php?subject=DBMS&id=<?php echo $row['id']; ?>">DBMS</a>
-</div>
-</div>
-
-
-<div class="main-content">
-
-    <h2>Welcome, <br>  
-    <?php echo $row['name']; ?></h2>
-
-    <div class="analytics-container">
-
-        <div class="card">
-            <h3>Total Quizzes</h3>
-            <p><?php echo $total_quizzes; ?></p>
-        </div>
-
-        <div class="card">
-            <h3>Accuracy</h3>
-            <p><?php echo round($accuracy, 2); ?>%</p>
-        </div>
-
-        <div class="card">
-            <h3>Average Score</h3>
-            <p><?php echo round($avg_score, 2); ?></p>
-        </div>
-
-    </div>
-
-</div>
-
-</div>
-
-<div class="performance-section">
-
-  <div class="card strong">
-    <h3>Strong Subject 💪</h3>
-    <p><?php echo $strong['name'] ?? 'N/A'; ?></p>
-    <span>
-      <?php 
-        echo isset($strong['avg_score']) 
-        ? round($strong['avg_score']) . '%' 
-        : '0%'; 
-      ?>
-    </span>
-  </div>
-
-  <div class="card weak">
-    <h3>Weak Subject ⚠️</h3>
-    <p><?php echo $weak['name'] ?? 'N/A'; ?></p>
-    <span>
-      <?php 
-        echo isset($weak['avg_score']) 
-        ? round($weak['avg_score']) . '%' 
-        : '0%'; 
-      ?>
-    </span>
-  </div>
-
-</div>
-
-
-<h3>Your Attempts</h3>
-
-<?php
-if (!empty($attempt_data)) {
-    foreach ($attempt_data as $subject => $attempts) {
-        echo "Subject $subject: $attempts attempts <br>";
+if ($stmt) {
+    $stmt->bind_param("i", $user_id);
+    $stmt->execute();
+    $res = $stmt->get_result();
+    while ($row_a = $res->fetch_assoc()) {
+        $attempt_data[] = $row_a;
     }
-} else {
-    echo "No attempts yet.";
+}
+
+// ── USER ROW ──
+$sql    = "SELECT * FROM users WHERE id = '$id'";
+$result = $data->query($sql);
+if (!$result) { die("Invalid query!"); }
+$row = $result->fetch_assoc();
+
+// ── AVATAR INITIALS ──
+$initials = '';
+if ($row) {
+    $parts = explode(' ', trim($row['name']));
+    foreach (array_slice($parts, 0, 2) as $p) {
+        $initials .= strtoupper($p[0]);
+    }
 }
 ?>
-<?php } ?>
+
+<!-- ══════════════════════════════════════════ NAVBAR ══ -->
+<nav class="navbar">
+  <a class="nav-logo" href="user.php">
+    <div class="nav-logo-dot"></div>
+    Quizr
+  </a>
+
+  <div class="nav-links">
+    <a class="nav-link" href="profile.php?id=<?php echo $row['id']; ?>">
+      <i class="ti ti-user" style="font-size:14px;"></i> Profile
+    </a>
+    <a class="nav-link" href="scoreboard.php?id=<?php echo $id; ?>">
+      <i class="ti ti-trophy" style="font-size:14px;"></i> Scoreboard
+    </a>
+
+    <div class="dropdown">
+      <button class="dropbtn">
+        <i class="ti ti-book" style="font-size:14px;"></i>
+        Quizzes
+        <i class="ti ti-chevron-down" style="font-size:12px;"></i>
+      </button>
+      <div class="dropdown-menu">
+        <a class="dropdown-item" href="quiz.php?subject=Aptitude&id=<?php echo $row['id']; ?>">
+          <i class="ti ti-math-function" style="font-size:14px;"></i> Aptitude
+        </a>
+        <a class="dropdown-item" href="quiz.php?subject=Logical_Reasoning&id=<?php echo $row['id']; ?>">
+          <i class="ti ti-brain" style="font-size:14px;"></i> Logical Reasoning
+        </a>
+        <a class="dropdown-item" href="quiz.php?subject=Data_Structure&id=<?php echo $row['id']; ?>">
+          <i class="ti ti-binary-tree" style="font-size:14px;"></i> Data Structure
+        </a>
+        <a class="dropdown-item" href="quiz.php?subject=Web_Development&id=<?php echo $row['id']; ?>">
+          <i class="ti ti-code" style="font-size:14px;"></i> Web Development
+        </a>
+        <a class="dropdown-item" href="quiz.php?subject=DBMS&id=<?php echo $row['id']; ?>">
+          <i class="ti ti-database" style="font-size:14px;"></i> DBMS
+        </a>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<!-- ══════════════════════════════════════════ PAGE ══ -->
+<div class="page">
+
+  <!-- Welcome -->
+  <div class="welcome-row">
+    <div class="avatar-block">
+      <div class="avatar"><?php echo $initials ?: '?'; ?></div>
+      <div>
+        <div class="welcome-name">Welcome back, <?php echo htmlspecialchars($row['name']); ?></div>
+        <div class="welcome-sub">Here's your performance at a glance</div>
+      </div>
+    </div>
+    <a class="btn btn-danger" href="logout.php">
+      <i class="ti ti-logout" style="font-size:14px;"></i> Logout
+    </a>
+  </div>
+
+  <!-- Stats -->
+  <div>
+    <div class="section-label">Overview</div>
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-label">
+          <i class="ti ti-list-check" style="font-size:14px;"></i> Total quizzes
+        </div>
+        <div class="stat-value"><?php echo $total_quizzes; ?></div>
+        <div class="stat-sub">quizzes attempted</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">
+          <i class="ti ti-target" style="font-size:14px;"></i> Accuracy
+        </div>
+        <div class="stat-value">
+          <?php echo round($accuracy, 1); ?><span style="font-size:16px;">%</span>
+        </div>
+        <div class="stat-sub">of answers correct</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">
+          <i class="ti ti-chart-bar" style="font-size:14px;"></i> Avg. score
+        </div>
+        <div class="stat-value"><?php echo round($avg_score, 1); ?></div>
+        <div class="stat-sub">points per quiz</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Performance spotlight -->
+  <div>
+    <div class="section-label">Performance spotlight</div>
+    <div class="perf-grid">
+      <div class="perf-card strong">
+        <div class="perf-tag strong">
+          <i class="ti ti-trophy" style="font-size:13px;"></i> Strong subject
+        </div>
+        <div class="perf-subject strong">
+          <?php echo htmlspecialchars($strong['name'] ?? 'N/A'); ?>
+        </div>
+        <div class="perf-score strong">
+          <?php echo isset($strong['avg_score']) ? round($strong['avg_score']) . '%' : '0%'; ?>
+        </div>
+      </div>
+      <div class="perf-card weak">
+        <div class="perf-tag weak">
+          <i class="ti ti-alert-triangle" style="font-size:13px;"></i> Needs attention
+        </div>
+        <div class="perf-subject weak">
+          <?php echo htmlspecialchars($weak['name'] ?? 'N/A'); ?>
+        </div>
+        <div class="perf-score weak">
+          <?php echo isset($weak['avg_score']) ? round($weak['avg_score']) . '%' : '0%'; ?>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Attempts by subject -->
+  <div>
+    <div class="section-label">Your attempts by subject</div>
+
+    <?php if (!empty($attempt_data)): ?>
+      <div class="attempts-list">
+        <?php foreach ($attempt_data as $item):
+          $pct     = round($item['avg_pct']);
+          $isLow   = $pct < 50;
+          $barClass = $isLow ? 'bar-fill low' : 'bar-fill';
+          $badgeCls = $isLow ? 'attempt-badge badge-red' : 'attempt-badge badge-blue';
+        ?>
+        <div class="attempt-row">
+          <div class="attempt-info">
+            <div class="attempt-name"><?php echo htmlspecialchars($item['name']); ?></div>
+            <div class="attempt-meta">
+              <?php echo $item['attempts']; ?> attempt<?php echo $item['attempts'] != 1 ? 's' : ''; ?>
+            </div>
+            <div class="bar-wrap">
+              <div class="<?php echo $barClass; ?>" style="width:<?php echo $pct; ?>%;"></div>
+            </div>
+          </div>
+          <span class="<?php echo $badgeCls; ?>"><?php echo $pct; ?>%</span>
+        </div>
+        <?php endforeach; ?>
+      </div>
+
+    <?php else: ?>
+      <div class="empty-state">
+        <i class="ti ti-notes-off" style="font-size:24px; display:block; margin-bottom:8px;"></i>
+        No attempts yet — pick a quiz above to get started!
+      </div>
+    <?php endif; ?>
+  </div>
+
+</div><!-- /page -->
 
 </body>
 </html>

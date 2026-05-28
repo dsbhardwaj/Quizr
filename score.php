@@ -174,6 +174,24 @@ echo "<table border='1' cellpadding='10'>
         </tbody>
       </table>";
 ?>
+<?php
+session_start();
+
+$start = $_SESSION['start_time'];
+$duration = $_SESSION['duration'];
+
+$current = time();
+
+if (($current - $start) > $duration) {
+
+    echo "Time expired.";
+
+    // Optionally still calculate score
+    // or reject submission completely
+
+    exit();
+}
+?>
 
 </body>
 </html>
