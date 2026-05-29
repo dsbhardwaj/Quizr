@@ -273,7 +273,7 @@ $offset  = round($circ - ($percentage / 100) * $circ, 2);
        href="quiz.php?subject=<?php echo urlencode($subject); ?>&id=<?php echo $user_id; ?>">
       <i class="ti ti-refresh" style="font-size:14px;"></i> Retake
     </a>
-    <a class="btn btn-ghost" href="scoreboard.php?id=<?php echo $user_id; ?>">
+    <a class="btn btn-ghost" href="score.php?id=<?php echo $user_id; ?>">
       <i class="ti ti-trophy" style="font-size:14px;"></i> Scoreboard
     </a>
     <a class="btn btn-primary" href="user.php">

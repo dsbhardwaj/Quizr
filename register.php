@@ -37,12 +37,12 @@ if (isset($_POST['submit'])) {
         try {
           $mail->isSMTP();
 
-          $mail->SMTPDebug = 2;
+          
 
 
           $mail->Host       = 'smtp.gmail.com';
           $mail->SMTPAuth   = true;
-          $mail->Username   = 'drishtiibhardwaj@gmail.com';
+          $mail->Username   = 'YOUR_EMAIL@gmail.com';
           $mail->Password   ='YOUR_APP_PASSWORD';
           $mail->SMTPSecure = 'tls';
           $mail->Port       = 587;

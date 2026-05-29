@@ -99,7 +99,7 @@ include "connection.php";
       border: 0.5px solid rgba(0,0,0,0.14);
       background: #f0f0ef;
       font-family: inherit;
-      transition: all 0.12s;
+
     }
 
     .dropbtn:hover {
@@ -133,7 +133,7 @@ include "connection.php";
       color: #6b6b6a;
       text-decoration: none;
       border-bottom: 0.5px solid rgba(0,0,0,0.06);
-      transition: all 0.1s;
+    
     }
 
     .dropdown-item:last-child {

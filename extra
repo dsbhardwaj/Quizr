@@ -1,26 +1,337 @@
-<?php
-include "connection.php";
 
-if (isset($_GET['token'])) {
 
-    $token = $_GET['token'];
-    echo $token;
-    $sql = "SELECT * FROM users WHERE token='$token'";
-    $result = mysqli_query($data, $sql);
-    echo mysqli_num_rows($result);
+// Stats
+($$subject); ?> — Quizr</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivpercentage = $total_ques > 0 ? round(($score / $total_ques) * 100) : 0;
 
-    if (mysqli_num_rows($result) > 0) {
-
-        $update = "UPDATE users SET status=1, token='' WHERE token='$token'";
-        mysqli_query($data, $update);
-
-        echo "<script>
-alert('Account verified successfully');
-window.location.href='index.php';
-</script>";
-
-    } else {
-        echo "❌ Invalid or expired token.";
-    }
-}
+f i($percentage >= 80)      { $grade = 'Excellent'; $grade_color = '#27500A'; $grade_bg = '#EAF3DE'; }
+elseif ($percentage >= 60)  { $grade = 'Good';      $grade_color = '#0C447C'; $grade_bg = '#E6F1FB'; }
+elseif ($percentage >= 40)  { $grade = 'Average';   $grade_color = '#633806'; $grade_bg = '#FAEEDA'; }
+else                        { $grade = 'Needs work'; $grade_color = '#791F1F'; $grade_bg = '#FCEBEB'; }
 ?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Results — <?php echo htmlspecialchars(r.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #f5f6fa;
+      color: #111110;
+      min-height: 100vh;
+    }
+
+    /* ── NAVBAR ── */
+    .navbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 24px;
+      height: 56px;
+      background: #ffffff;
+      border-bottom: 0.5px solid rgba(0,0,0,0.08);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .nav-logo {
+      font-size: 15px; font-weight: 600;
+      display: flex; align-items: center; gap: 8px;
+      text-decoration: none; color: #111110;
+    }
+
+    .nav-logo-dot { width: 8px; height: 8px; border-radius: 50%; background: #1D9E75; }
+
+    .btn {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 8px 16px; border-radius: 8px; font-size: 13px; font-weight: 500;
+      cursor: pointer; font-family: inherit; transition: all 0.12s; text-decoration: none;
+    }
+
+    .btn-ghost {
+      background: transparent; color: #111110;
+      border: 0.5px solid rgba(0,0,0,0.14);
+    }
+    .btn-ghost:hover { background: #f0f0ef; }
+
+    .btn-primary { background: #111110; color: #fff; border: none; }
+    .btn-primary:hover { opacity: 0.85; }
+
+    /* ── PAGE ── */
+    .page {
+      max-width: 680px;
+      margin: 0 auto;
+      padding: 36px 24px 64px;
+      display: flex;
+      flex-direction: column;
+      gap: 28px;
+    }
+
+    /* ── SCORE HERO ── */
+    .score-hero {
+      background: #ffffff;
+      border: 0.5px solid rgba(0,0,0,0.08);
+      border-radius: 16px;
+      padding: 36px 28px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+      text-align: center;
+    }
+
+    .score-ring-wrap { position: relative; width: 130px; height: 130px; }
+    .score-ring-wrap svg { width: 130px; height: 130px; }
+
+    .score-center {
+      position: absolute; top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      display: flex; flex-direction: column; align-items: center;
+    }
+
+    .score-pct { font-size: 30px; font-weight: 300; letter-spacing: -0.03em; line-height: 1; }
+    .score-label { font-size: 11px; color: #6b6b6a; margin-top: 2px; }
+
+    .grade-badge {
+      padding: 5px 16px;
+      border-radius: 100px;
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .score-headline { font-size: 22px; font-weight: 600; letter-spacing: -0.02em; }
+    .score-sub { font-size: 14px; color: #6b6b6a; }
+
+    /* ── BREAKDOWN GRID ── */
+    .breakdown-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+    }
+
+    .breakdown-card {
+      background: #ffffff;
+      border: 0.5px solid rgba(0,0,0,0.08);
+      border-radius: 12px;
+      padding: 16px 20px;
+      text-align: center;
+    }
+
+    .bd-val { font-size: 26px; font-weight: 300; letter-spacing: -0.03em; }
+    .bd-lbl { font-size: 12px; color: #6b6b6a; margin-top: 4px; }
+
+    /* ── SECTION LABEL ── */
+    .section-label {
+      font-size: 11px; font-weight: 600; color: #6b6b6a;
+      text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 12px;
+    }
+
+    /* ── REVIEW LIST ── */
+    .review-list { display: flex; flex-direction: column; gap: 10px; }
+
+    .review-card {
+      background: #ffffff;
+      border: 0.5px solid rgba(0,0,0,0.08);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    .review-card.correct { border-left: 3px solid #1D9E75; }
+    .review-card.wrong   { border-left: 3px solid #E24B4A; }
+    .review-card.skipped { border-left: 3px solid #EF9F27; }
+
+    .review-header {
+      display: flex; align-items: flex-start; gap: 12px;
+      padding: 14px 18px;
+    }
+
+    .review-icon {
+      width: 24px; height: 24px; border-radius: 6px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 13px; flex-shrink: 0; margin-top: 1px;
+    }
+
+    .review-icon.correct { background: #E1F5EE; color: #0F6E56; }
+    .review-icon.wrong   { background: #FCEBEB; color: #A32D2D; }
+    .review-icon.skipped { background: #FAEEDA; color: #854F0B; }
+
+    .review-q { font-size: 14px; font-weight: 500; line-height: 1.4; color: #111110; }
+
+    .review-answers {
+      padding: 0 18px 14px 54px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .ans-row {
+      display: flex; align-items: center; gap: 8px;
+      font-size: 13px; color: #6b6b6a;
+    }
+
+    .ans-row.correct-ans { color: #0F6E56; font-weight: 500; }
+    .ans-row.wrong-ans   { color: #A32D2D; text-decoration: line-through; }
+
+    .ans-dot {
+      width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0;
+    }
+    .ans-dot.green { background: #1D9E75; }
+    .ans-dot.red   { background: #E24B4A; }
+    .ans-dot.gray  { background: #b0b0ae; }
+
+    /* ── ACTIONS ── */
+    .actions {
+      display: flex; gap: 10px; flex-wrap: wrap; justify-content: center;
+    }
+
+    @media (max-width: 520px) {
+      .breakdown-grid { grid-template-columns: 1fr 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar">
+  <a class="nav-logo" href="user.php">
+    <div class="nav-logo-dot"></div>
+    Quizr
+  </a>
+  <div style="display:flex; gap:8px;">
+    <a class="btn btn-ghost" href="scoreboard.php?id=<?php echo $user_id; ?>">
+      <i class="ti ti-trophy" style="font-size:14px;"></i> Scoreboard
+    </a>
+    <a class="btn btn-ghost" href="user.php">
+      <i class="ti ti-home" style="font-size:14px;"></i> Dashboard
+    </a>
+  </div>
+</nav>
+
+<div class="page">
+
+  <!-- Score hero -->
+  <div class="score-hero">
+    <?php
+      $circumference = 2 * M_PI * 54;
+      $offset = $circumference - ($percentage / 100) * $circumference;
+      $stroke = $percentage >= 60 ? '#1D9E75' : ($percentage >= 40 ? '#EF9F27' : '#E24B4A');
+    ?>
+    <div class="score-ring-wrap">
+      <svg viewBox="0 0 130 130" fill="none">
+        <circle cx="65" cy="65" r="54" stroke="#f0f0ef" stroke-width="8"/>
+        <circle cx="65" cy="65" r="54"
+          stroke="<?php echo $stroke; ?>"
+          stroke-width="8"
+          stroke-linecap="round"
+          stroke-dasharray="<?php echo round($circumference, 2); ?>"
+          stroke-dashoffset="<?php echo round($offset, 2); ?>"
+          transform="rotate(-90 65 65)"/>
+      </svg>
+      <div class="score-center">
+        <div class="score-pct"><?php echo $percentage; ?>%</div>
+        <div class="score-label">score</div>
+      </div>
+    </div>
+
+    <span class="grade-badge"
+      style="background:<?php echo $grade_bg; ?>; color:<?php echo $grade_color; ?>;">
+      <?php echo $grade; ?>
+    </span>
+
+    <div class="score-headline">
+      <?php
+        if      ($percentage >= 80) echo 'Outstanding work!';
+        elseif  ($percentage >= 60) echo 'Solid effort!';
+        elseif  ($percentage >= 40) echo 'Room to grow.';
+        else                        echo 'Keep practising!';
+      ?>
+    </div>
+    <div class="score-sub">
+      You scored <strong><?php echo $score; ?></strong> out of
+      <strong><?php echo $total_ques; ?></strong> on <?php echo htmlspecialchars($subject); ?>
+    </div>
+  </div>
+
+  <!-- Breakdown -->
+  <div class="breakdown-grid">
+    <div class="breakdown-card">
+      <div class="bd-val" style="color:#1D9E75;"><?php echo $score; ?></div>
+      <div class="bd-lbl">Correct</div>
+    </div>
+    <div class="breakdown-card">
+      <?php $wrong = count(array_filter($question_log, fn($q) => $q['user_answer'] !== null && !$q['is_correct'])); ?>
+      <div class="bd-val" style="color:#E24B4A;"><?php echo $wrong; ?></div>
+      <div class="bd-lbl">Incorrect</div>
+    </div>
+    <div class="breakdown-card">
+      <?php $skipped = count(array_filter($question_log, fn($q) => $q['user_answer'] === null)); ?>
+      <div class="bd-val" style="color:#EF9F27;"><?php echo $skipped; ?></div>
+      <div class="bd-lbl">Skipped</div>
+    </div>
+  </div>
+
+  <!-- Review -->
+  <div>
+    <div class="section-label">Question review</div>
+    <div class="review-list">
+      <?php foreach ($question_log as $i => $ql):
+        if      ($ql['is_correct'])              $status = 'correct';
+        elseif  ($ql['user_answer'] === null)    $status = 'skipped';
+        else                                     $status = 'wrong';
+      ?>
+      <div class="review-card <?php echo $status; ?>">
+        <div class="review-header">
+          <div class="review-icon <?php echo $status; ?>">
+            <?php if ($status === 'correct'): ?>
+              <i class="ti ti-check" style="font-size:13px;"></i>
+            <?php elseif ($status === 'wrong'): ?>
+              <i class="ti ti-x" style="font-size:13px;"></i>
+            <?php else: ?>
+              <i class="ti ti-minus" style="font-size:13px;"></i>
+            <?php endif; ?>
+          </div>
+          <div class="review-q">Q<?php echo $i+1; ?>. <?php echo htmlspecialchars($ql['text']); ?></div>
+        </div>
+        <div class="review-answers">
+          <?php if ($status === 'wrong'): ?>
+            <div class="ans-row wrong-ans">
+              <div class="ans-dot red"></div>
+              Your answer: <?php echo htmlspecialchars($ql['options'][$ql['user_answer']] ?? '—'); ?>
+            </div>
+          <?php elseif ($status === 'skipped'): ?>
+            <div class="ans-row">
+              <div class="ans-dot gray"></div>
+              Not answered
+            </div>
+          <?php endif; ?>
+          <div class="ans-row correct-ans">
+            <div class="ans-dot green"></div>
+            <?php echo $status === 'correct' ? 'Your answer: ' : 'Correct answer: '; ?>
+            <?php echo htmlspecialchars($ql['options'][$ql['correct_option']] ?? '—'); ?>
+          </div>
+        </div>
+      </div>
+      <?php endforeach; ?>
+    </div>
+  </div>
+
+  <!-- Actions -->
+  <div class="actions">
+    <a class="btn btn-ghost" href="user.php">
+      <i class="ti ti-home" style="font-size:14px;"></i> Back to dashboard
+    </a>
+    <a class="btn btn-primary"
+       href="quiz.php?subject=<?php echo urlencode($subject); ?>&id=<?php echo $user_id; ?>">
+      <i class="ti ti-refresh" style="font-size:14px;"></i> Retake quiz
+    </a>
+  </div>
+
+</div><!-- /page -->
+
+</body>
+</html>

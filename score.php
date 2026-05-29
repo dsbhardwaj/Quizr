@@ -101,9 +101,8 @@ td {
 <?php
 session_start();
 include "connection.php";
-
 // sanitize inputs
-$id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
+$user_id = $_SESSION['user_id'];
 $subject = mysqli_real_escape_string($data, $_GET['subject'] ?? '');
 $answers = $_POST['answers'] ?? [];
 
@@ -112,9 +111,12 @@ if (empty($answers)) {
     die("No answers submitted.");
 }
 
-// get subject_id
 $subject_query = "SELECT id FROM subjects WHERE name = '$subject'";
 $res = mysqli_query($data, $subject_query);
+
+if (!$res) {
+    die("Subject query failed: " . mysqli_error($data));
+}
 
 if (mysqli_num_rows($res) == 0) {
     die("Invalid subject.");
@@ -126,12 +128,15 @@ $subject_id = $row['id'];
 // get correct answers
 $q_ids = implode(",", array_keys($answers));
 
-$query = "SELECT id, correct_answer FROM questions 
-          WHERE subject_id = $subject_id 
+$query = "SELECT id, correct_answer FROM questions
+          WHERE subject_id = $subject_id
           AND id IN ($q_ids)";
 
 $result = mysqli_query($data, $query);
 
+if (!$result) {
+    die("Question query failed: " . mysqli_error($data));
+}
 $correct_answers = [];
 while ($row = mysqli_fetch_assoc($result)) {
     $correct_answers[$row['id']] = $row['correct_answer'];
@@ -149,9 +154,22 @@ foreach ($answers as $q_id => $user_answer) {
 
 
 $insert = "INSERT INTO result (user_id, subject_id, score, total_ques)
-           VALUES ($id, $subject_id, $score, $total)";
+           VALUES ($user_id, $subject_id, $score, $total)";
 
-mysqli_query($data, $insert);
+           echo "USER ID: $user_id <br>";
+echo "SUBJECT ID: $subject_id <br>";
+echo "SCORE: $score <br>";
+echo "TOTAL: $total <br>";
+
+if(!mysqli_query($data, $insert)){
+    die("INSERT FAILED: " . mysqli_error($data));
+}
+
+unset($_SESSION['quiz_active']);
+unset($_SESSION['start_time']);
+unset($_SESSION['duration']);
+unset($_SESSION['end_time']);
+unset($_SESSION['submitted']);
 
 header("Location: result.php?score=$score&total=$total&subject=$subject");
 exit();
@@ -186,7 +204,7 @@ if (($current - $start) > $duration) {
 
     echo "Time expired.";
 
-    // Optionally still calculate score
+    // answerally still calculate score
     // or reject submission completely
 
     exit();

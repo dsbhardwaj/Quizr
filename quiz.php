@@ -3,9 +3,9 @@ session_start();
 
 include "connection.php";
 
-if (isset($_SESSION['submitted'])) {
-    echo "Quiz already submitted."; exit();
-}
+//if (isset($_SESSION['submitted'])) {
+  //  echo "Quiz already submitted."; exit();
+//}
 
 $subject = $_GET['subject'] ?? '';
 $allowedSubjects = ['Aptitude', 'Logical Reasoning', 'Data Structure', 'DBMS', 'Web Development'];
@@ -14,14 +14,12 @@ if (!in_array($subject, $allowedSubjects)) {
     die("Invalid subject.");
 }
 
-if (!isset($_SESSION['quiz_active'])) {
-    $_SESSION['quiz_active'] = true;
+
+  
     $_SESSION['start_time']  = time();
     $_SESSION['duration']    = 600;
     $_SESSION['end_time']    = time() + 600;
-} else {
-    echo "Quiz already running."; exit();
-}
+
 
 $query = "SELECT id FROM subjects WHERE name = '$subject'";
 $res   = mysqli_query($data, $query);
@@ -42,8 +40,6 @@ while ($r = mysqli_fetch_assoc($result)) {
 $total_q  = count($questions);
 $user_id  = $_SESSION['user_id'] ?? $_GET['id'] ?? 0;
 
-$_SESSION['submitted'] = true;
-unset($_SESSION['quiz_active']);
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -353,7 +349,9 @@ unset($_SESSION['quiz_active']);
 
 <!-- QUESTIONS -->
 <form id="quizForm" method="POST"
-  action="score.php?id=<?php echo urlencode($user_id); ?>&subject=<?php echo urlencode($subject); ?>">
+  action="score.php?id=<?php echo urlencode($user_id); ?>&subject=<?php echo urlencode($subject); ?>"
+  <input type="hidden" name="test" value="hello">
+  >
 
   <div class="page">
     <?php foreach ($questions as $i => $q):
@@ -497,6 +495,10 @@ unset($_SESSION['quiz_active']);
   updateTimer();
   setInterval(updateTimer, 1000);
 </script>
-
+<script>
+document.getElementById('quizForm').addEventListener('submit', function(e){
+    alert('FORM IS SUBMITTING');
+});
+</script>
 </body>
 </html>
