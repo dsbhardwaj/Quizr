@@ -2,39 +2,47 @@
 include("admin_check.php");
 include("../connection.php");
 
-// Filters
-$filter_subject = isset($_GET['subject']) ? (int)$_GET['subject'] : 0;
-$search         = isset($_GET['q'])       ? trim($_GET['q'])       : '';
+$success = '';
+$error   = '';
 
-$where = "WHERE 1=1";
-if ($filter_subject > 0) $where .= " AND r.subject_id = $filter_subject";
-if ($search !== '') {
-    $s     = mysqli_real_escape_string($data, $search);
-    $where .= " AND (u.name LIKE '%$s%' OR s.name LIKE '%$s%')";
+// DEACTIVATE
+if (isset($_GET['deactivate']) && is_numeric($_GET['deactivate'])) {
+    $id   = (int)$_GET['deactivate'];
+    $stmt = mysqli_prepare($data, "UPDATE users SET status=0 WHERE id=?");
+    mysqli_stmt_bind_param($stmt, "i", $id);
+    mysqli_stmt_execute($stmt);
+    header("Location: manage_users.php?msg=deactivated"); exit();
 }
 
-$sql = "
-    SELECT r.*, u.name AS user_name, s.name AS subject_name
-    FROM result r
-    LEFT JOIN users u ON r.user_id = u.id
-    LEFT JOIN subjects s ON r.subject_id = s.id
-    $where
-    ORDER BY r.id DESC
-";
-$result = mysqli_query($data, $sql);
-$rows   = [];
-while ($r = mysqli_fetch_assoc($result)) { $rows[] = $r; }
+// ACTIVATE
+if (isset($_GET['activate']) && is_numeric($_GET['activate'])) {
+    $id   = (int)$_GET['activate'];
+    $stmt = mysqli_prepare($data, "UPDATE users SET status=1 WHERE id=?");
+    mysqli_stmt_bind_param($stmt, "i", $id);
+    mysqli_stmt_execute($stmt);
+    header("Location: manage_users.php?msg=activated"); exit();
+}
 
-// Summary stats
-$total_attempts  = count($rows);
-$total_score     = array_sum(array_column($rows, 'score'));
-$total_ques      = array_sum(array_column($rows, 'total_ques'));
-$overall_avg     = $total_ques > 0 ? round(($total_score / $total_ques) * 100) : 0;
+if (isset($_GET['msg'])) {
+    if ($_GET['msg'] === 'deactivated') $success = "User deactivated successfully.";
+    if ($_GET['msg'] === 'activated')   $success = "User activated successfully.";
+}
 
-// Subjects for filter dropdown
-$subj_res = mysqli_query($data, "SELECT * FROM subjects ORDER BY name ASC");
-$subjects = [];
-while ($s = mysqli_fetch_assoc($subj_res)) { $subjects[] = $s; }
+// Search
+$search = isset($_GET['q']) ? trim($_GET['q']) : '';
+$where  = '';
+if ($search !== '') {
+    $s     = mysqli_real_escape_string($data, $search);
+    $where = "WHERE name LIKE '%$s%' OR email LIKE '%$s%'";
+}
+
+$users = [];
+$res   = mysqli_query($data, "SELECT * FROM users $where ORDER BY id DESC");
+while ($r = mysqli_fetch_assoc($res)) { $users[] = $r; }
+
+$total       = count($users);
+$active_count   = count(array_filter($users, fn($u) => $u['status'] == 1));
+$inactive_count = $total - $active_count;
 
 $admin_name = $_SESSION['admin_username'] ?? 'Admin';
 ?>
@@ -43,7 +51,7 @@ $admin_name = $_SESSION['admin_username'] ?? 'Admin';
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Quiz Results — Quizr Admin</title>
+  <title>Manage Users — Quizr Admin</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
   <style>
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
@@ -58,7 +66,10 @@ $admin_name = $_SESSION['admin_username'] ?? 'Admin';
     .nav-avatar{width:28px;height:28px;border-radius:50%;background:#E6F1FB;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:#0C447C;}
     .btn{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:8px;font-size:13px;font-weight:500;cursor:pointer;font-family:inherit;transition:all .12s;text-decoration:none;border:.5px solid rgba(0,0,0,.14);}
     .btn-ghost{background:transparent;color:#111110;}.btn-ghost:hover{background:#f0f0ef;}
+    .btn-primary{background:#111110;color:#fff;border-color:#111110;}.btn-primary:hover{opacity:.85;}
     .btn-danger{background:#FCEBEB;color:#791F1F;border-color:#F7C1C1;}.btn-danger:hover{background:#F7C1C1;}
+    .btn-green{background:#EAF3DE;color:#27500A;border-color:#C0DD97;}.btn-green:hover{background:#C0DD97;}
+    .btn-amber{background:#FAEEDA;color:#633806;border-color:#FAC775;}.btn-amber:hover{background:#FAC775;}
     .btn-sm{padding:5px 10px;font-size:12px;}
     .layout{display:grid;grid-template-columns:200px 1fr;min-height:calc(100vh - 56px);}
     .sidebar{background:#fff;border-right:.5px solid rgba(0,0,0,.08);padding:20px 12px;display:flex;flex-direction:column;gap:2px;}
@@ -70,18 +81,23 @@ $admin_name = $_SESSION['admin_username'] ?? 'Admin';
     .page-header{display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:24px;}
     .page-title{font-size:20px;font-weight:600;letter-spacing:-.02em;}
     .page-sub{font-size:13px;color:#6b6b6a;margin-top:3px;}
+    .alert{display:flex;align-items:center;gap:8px;border-radius:10px;padding:12px 16px;font-size:13px;margin-bottom:20px;}
+    .alert-success{background:#EAF3DE;border:.5px solid #C0DD97;color:#27500A;}
+    .alert-error{background:#FCEBEB;border:.5px solid #F7C1C1;color:#791F1F;}
     .stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px;}
     .stat-card{background:#fff;border:.5px solid rgba(0,0,0,.08);border-radius:12px;padding:16px 18px;display:flex;align-items:center;gap:14px;}
     .stat-icon{width:36px;height:36px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0;}
     .stat-val{font-size:22px;font-weight:300;letter-spacing:-.02em;line-height:1;}
     .stat-lbl{font-size:12px;color:#6b6b6a;margin-top:3px;}
     .toolbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:16px;}
-    .search-wrap{position:relative;flex:1;min-width:200px;max-width:300px;}
+    .search-wrap{position:relative;flex:1;min-width:200px;max-width:320px;}
     .search-wrap i{position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:15px;color:#9b9b9a;pointer-events:none;}
     .search-wrap input{width:100%;padding:8px 12px 8px 32px;border:.5px solid rgba(0,0,0,.14);border-radius:8px;font-size:13px;font-family:inherit;background:#fff;color:#111110;outline:none;transition:border-color .15s,box-shadow .15s;}
     .search-wrap input:focus{border-color:#1D9E75;box-shadow:0 0 0 3px rgba(29,158,117,.12);}
     .search-wrap input::placeholder{color:#b0b0ae;}
-    .select-filter{padding:8px 28px 8px 12px;border:.5px solid rgba(0,0,0,.14);border-radius:8px;font-size:13px;font-family:inherit;background:#fff;color:#111110;outline:none;appearance:none;cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%239b9b9a' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 8px center;}
+    .filter-tab{padding:5px 14px;border-radius:100px;font-size:12px;font-weight:500;cursor:pointer;border:.5px solid rgba(0,0,0,.12);background:transparent;color:#6b6b6a;font-family:inherit;transition:all .12s;}
+    .filter-tab:hover{background:#f0f0ef;color:#111110;}
+    .filter-tab.active{background:#111110;color:#fff;border-color:#111110;}
     .result-count{font-size:13px;color:#6b6b6a;margin-left:auto;}
     .result-count span{font-weight:600;color:#111110;}
     .table-card{background:#fff;border:.5px solid rgba(0,0,0,.08);border-radius:14px;overflow:hidden;}
@@ -90,16 +106,20 @@ $admin_name = $_SESSION['admin_username'] ?? 'Admin';
     td{padding:12px 18px;font-size:13px;border-bottom:.5px solid rgba(0,0,0,.05);vertical-align:middle;}
     tr:last-child td{border-bottom:none;}
     tbody tr:hover td{background:#fafaf9;}
-    .user-cell{display:flex;align-items:center;gap:9px;}
-    .user-avatar{width:30px;height:30px;border-radius:50%;background:#E1F5EE;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:#0F6E56;flex-shrink:0;}
-    .subject-chip{display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:6px;font-size:12px;background:#f0f0ef;color:#6b6b6a;font-weight:500;}
-    .pct-badge{display:inline-flex;align-items:center;font-size:12px;font-weight:600;padding:3px 10px;border-radius:100px;}
-    .badge-green{background:#EAF3DE;color:#27500A;}
-    .badge-blue{background:#E6F1FB;color:#0C447C;}
-    .badge-amber{background:#FAEEDA;color:#633806;}
-    .badge-red{background:#FCEBEB;color:#791F1F;}
-    .mini-bar-wrap{width:70px;height:4px;background:#f0f0ef;border-radius:2px;overflow:hidden;margin-top:4px;}
-    .mini-bar-fill{height:100%;border-radius:2px;}
+    .user-cell{display:flex;align-items:center;gap:10px;}
+    .user-avatar{width:32px;height:32px;border-radius:50%;background:#E1F5EE;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;color:#0F6E56;flex-shrink:0;}
+    .user-name{font-weight:500;font-size:13px;}
+    .user-email{font-size:11px;color:#9b9b9a;margin-top:1px;}
+    .role-badge{display:inline-flex;align-items:center;padding:3px 9px;border-radius:100px;font-size:11px;font-weight:600;}
+    .role-admin{background:#E6F1FB;color:#0C447C;}
+    .role-user{background:#f0f0ef;color:#6b6b6a;}
+    .status-badge{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:100px;font-size:12px;font-weight:500;}
+    .status-active{background:#EAF3DE;color:#27500A;}
+    .status-inactive{background:#FCEBEB;color:#791F1F;}
+    .status-dot{width:6px;height:6px;border-radius:50%;}
+    .dot-green{background:#1D9E75;}
+    .dot-red{background:#E24B4A;}
+    .action-cell{display:flex;gap:6px;align-items:center;}
     .empty-state{padding:48px;text-align:center;color:#9b9b9a;font-size:14px;}
     .empty-state i{font-size:28px;display:block;margin-bottom:10px;color:#b0b0ae;}
     @media(max-width:900px){.stats-row{grid-template-columns:1fr 1fr;}}
@@ -128,108 +148,113 @@ $admin_name = $_SESSION['admin_username'] ?? 'Admin';
     <a class="sidebar-item" href="add_question.php"><i class="ti ti-circle-plus" style="font-size:15px;"></i> Add Question</a>
     <a class="sidebar-item" href="view_questions.php"><i class="ti ti-list-details" style="font-size:15px;"></i> View Questions</a>
     <div class="sidebar-label" style="margin-top:8px;">Management</div>
-    <a class="sidebar-item" href="manage_users.php"><i class="ti ti-users" style="font-size:15px;"></i> Manage Users</a>
+    <a class="sidebar-item active" href="manage_users.php"><i class="ti ti-users" style="font-size:15px;"></i> Manage Users</a>
     <a class="sidebar-item" href="manage_subjects.php"><i class="ti ti-books" style="font-size:15px;"></i> Manage Subjects</a>
-    <a class="sidebar-item active" href="results.php"><i class="ti ti-chart-bar" style="font-size:15px;"></i> View Results</a>
+    <a class="sidebar-item" href="results.php"><i class="ti ti-chart-bar" style="font-size:15px;"></i> View Results</a>
     <div class="sidebar-label" style="margin-top:8px;">Account</div>
     <a class="sidebar-item danger" href="admin_logout.php"><i class="ti ti-logout" style="font-size:15px;"></i> Logout</a>
   </aside>
   <main class="main">
     <div class="page-header">
-      <div><div class="page-title">Quiz Results</div><div class="page-sub">All quiz attempt records across all users</div></div>
+      <div><div class="page-title">Manage Users</div><div class="page-sub">View and control all registered accounts</div></div>
     </div>
+    <?php if ($success): ?><div class="alert alert-success"><i class="ti ti-circle-check" style="font-size:16px;flex-shrink:0;"></i><?php echo htmlspecialchars($success); ?></div><?php endif; ?>
+    <?php if ($error):   ?><div class="alert alert-error"><i class="ti ti-alert-circle" style="font-size:16px;flex-shrink:0;"></i><?php echo htmlspecialchars($error); ?></div><?php endif; ?>
 
     <div class="stats-row">
       <div class="stat-card">
-        <div class="stat-icon" style="background:#E6F1FB;"><i class="ti ti-list-check" style="color:#0C447C;font-size:17px;"></i></div>
-        <div><div class="stat-val"><?php echo $total_attempts; ?></div><div class="stat-lbl">Total attempts</div></div>
+        <div class="stat-icon" style="background:#E6F1FB;"><i class="ti ti-users" style="color:#0C447C;font-size:17px;"></i></div>
+        <div><div class="stat-val"><?php echo $total; ?></div><div class="stat-lbl">Total users</div></div>
       </div>
       <div class="stat-card">
-        <div class="stat-icon" style="background:#EAF3DE;"><i class="ti ti-target" style="color:#27500A;font-size:17px;"></i></div>
-        <div><div class="stat-val"><?php echo $overall_avg; ?>%</div><div class="stat-lbl">Overall avg. score</div></div>
+        <div class="stat-icon" style="background:#EAF3DE;"><i class="ti ti-user-check" style="color:#27500A;font-size:17px;"></i></div>
+        <div><div class="stat-val"><?php echo $active_count; ?></div><div class="stat-lbl">Active</div></div>
       </div>
       <div class="stat-card">
-        <div class="stat-icon" style="background:#F3E8FF;"><i class="ti ti-books" style="color:#6B21A8;font-size:17px;"></i></div>
-        <div><div class="stat-val"><?php echo count($subjects); ?></div><div class="stat-lbl">Subjects</div></div>
+        <div class="stat-icon" style="background:#FCEBEB;"><i class="ti ti-user-off" style="color:#791F1F;font-size:17px;"></i></div>
+        <div><div class="stat-val"><?php echo $inactive_count; ?></div><div class="stat-lbl">Inactive</div></div>
       </div>
     </div>
 
-    <form method="GET" action="results.php">
+    <form method="GET" action="manage_users.php">
       <div class="toolbar">
         <div class="search-wrap">
           <i class="ti ti-search"></i>
-          <input type="text" name="q" placeholder="Search user or subject…" value="<?php echo htmlspecialchars($search); ?>">
+          <input type="text" name="q" placeholder="Search by name or email…" value="<?php echo htmlspecialchars($search); ?>">
         </div>
-        <select name="subject" class="select-filter" onchange="this.form.submit()">
-          <option value="0">All subjects</option>
-          <?php foreach ($subjects as $s): ?>
-            <option value="<?php echo $s['id']; ?>" <?php echo $filter_subject===(int)$s['id']?'selected':''; ?>>
-              <?php echo htmlspecialchars($s['name']); ?>
-            </option>
-          <?php endforeach; ?>
-        </select>
         <button type="submit" class="btn btn-ghost btn-sm"><i class="ti ti-search" style="font-size:13px;"></i> Search</button>
-        <?php if ($search || $filter_subject > 0): ?>
-          <a class="btn btn-ghost btn-sm" href="results.php"><i class="ti ti-x" style="font-size:13px;"></i> Clear</a>
-        <?php endif; ?>
-        <div class="result-count"><span><?php echo $total_attempts; ?></span> record<?php echo $total_attempts!=1?'s':''; ?></div>
+        <?php if ($search): ?><a class="btn btn-ghost btn-sm" href="manage_users.php"><i class="ti ti-x" style="font-size:13px;"></i> Clear</a><?php endif; ?>
+        <div class="result-count"><span id="visibleCount"><?php echo $total; ?></span> user<?php echo $total!=1?'s':''; ?></div>
       </div>
     </form>
 
     <div class="table-card">
-      <?php if (!empty($rows)): ?>
-      <table>
+      <?php if (!empty($users)): ?>
+      <table id="usersTable">
         <thead>
           <tr>
             <th style="width:44px;">ID</th>
             <th>User</th>
-            <th>Subject</th>
-            <th style="width:90px;">Score</th>
-            <th style="width:120px;">Percentage</th>
-            <th style="width:140px;">Submitted on</th>
+            <th style="width:90px;">Role</th>
+            <th style="width:100px;">Status</th>
+            <th style="width:140px;">Joined</th>
+            <th style="width:120px;">Action</th>
           </tr>
         </thead>
         <tbody>
-          <?php foreach ($rows as $r):
-            $pct = $r['total_ques'] > 0 ? round(($r['score']/$r['total_ques'])*100, 2) : 0;
-            if      ($pct >= 80) { $cls = 'pct-badge badge-green'; $bar = '#1D9E75'; }
-            elseif  ($pct >= 60) { $cls = 'pct-badge badge-blue';  $bar = '#3B82F6'; }
-            elseif  ($pct >= 40) { $cls = 'pct-badge badge-amber'; $bar = '#EF9F27'; }
-            else                 { $cls = 'pct-badge badge-red';   $bar = '#E24B4A'; }
-            $initials = strtoupper(substr($r['user_name'] ?? '?', 0, 1));
-            $date     = !empty($r['submitted_on']) ? date('d M Y', strtotime($r['submitted_on'])) : '—';
+          <?php foreach ($users as $u):
+            $initials = strtoupper(substr($u['name'],0,1));
+            $joined   = isset($u['created_at']) ? date('d M Y', strtotime($u['created_at'])) : '—';
           ?>
           <tr>
-            <td style="font-size:12px;color:#9b9b9a;font-weight:500;">#<?php echo $r['id']; ?></td>
+            <td style="font-size:12px;color:#9b9b9a;font-weight:500;">#<?php echo $u['id']; ?></td>
             <td>
               <div class="user-cell">
                 <div class="user-avatar"><?php echo $initials; ?></div>
-                <span style="font-weight:500;"><?php echo htmlspecialchars($r['user_name'] ?? '—'); ?></span>
+                <div>
+                  <div class="user-name"><?php echo htmlspecialchars($u['name']); ?></div>
+                  <div class="user-email"><?php echo htmlspecialchars($u['email']); ?></div>
+                </div>
               </div>
             </td>
             <td>
-              <span class="subject-chip">
-                <i class="ti ti-book" style="font-size:11px;"></i>
-                <?php echo htmlspecialchars($r['subject_name'] ?? '—'); ?>
+              <span class="role-badge <?php echo $u['role']==='admin'?'role-admin':'role-user'; ?>">
+                <?php echo ucfirst(htmlspecialchars($u['role'])); ?>
               </span>
             </td>
             <td>
-              <span style="font-weight:500;"><?php echo $r['score']; ?></span>
-              <span style="color:#9b9b9a;"> / <?php echo $r['total_ques']; ?></span>
+              <?php if ($u['status'] == 1): ?>
+                <span class="status-badge status-active"><div class="status-dot dot-green"></div>Active</span>
+              <?php else: ?>
+                <span class="status-badge status-inactive"><div class="status-dot dot-red"></div>Inactive</span>
+              <?php endif; ?>
             </td>
+            <td style="font-size:12px;color:#6b6b6a;"><?php echo $joined; ?></td>
             <td>
-              <span class="<?php echo $cls; ?>"><?php echo $pct; ?>%</span>
-              <div class="mini-bar-wrap"><div class="mini-bar-fill" style="width:<?php echo $pct; ?>%;background:<?php echo $bar; ?>;"></div></div>
+              <div class="action-cell">
+                <?php if ($u['status'] == 1): ?>
+                  <a class="btn btn-amber btn-sm"
+                     href="manage_users.php?deactivate=<?php echo $u['id']; ?>"
+                     onclick="return confirm('Deactivate <?php echo addslashes($u['name']); ?>?');">
+                    <i class="ti ti-user-off" style="font-size:13px;"></i> Deactivate
+                  </a>
+                <?php else: ?>
+                  <a class="btn btn-green btn-sm"
+                     href="manage_users.php?activate=<?php echo $u['id']; ?>"
+                     onclick="return confirm('Activate <?php echo addslashes($u['name']); ?>?');">
+                    <i class="ti ti-user-check" style="font-size:13px;"></i> Activate
+                  </a>
+                <?php endif; ?>
+              </div>
             </td>
-            <td style="font-size:12px;color:#6b6b6a;"><?php echo $date; ?></td>
           </tr>
           <?php endforeach; ?>
         </tbody>
       </table>
       <?php else: ?>
         <div class="empty-state">
-          <i class="ti ti-clipboard-off"></i>
-          <?php echo ($search || $filter_subject > 0) ? "No results match your filters." : "No quiz results yet."; ?>
+          <i class="ti ti-users-off"></i>
+          <?php echo $search ? "No users match \"$search\"." : "No users registered yet."; ?>
         </div>
       <?php endif; ?>
     </div>

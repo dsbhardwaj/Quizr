@@ -12,7 +12,7 @@ $question_count = mysqli_fetch_assoc(mysqli_query($data, "SELECT COUNT(*) AS tot
 $result_count   = mysqli_fetch_assoc(mysqli_query($data, "SELECT COUNT(*) AS total FROM result"))['total'];
 $subject_count  = mysqli_fetch_assoc(mysqli_query($data, "SELECT COUNT(*) AS total FROM subjects"))['total'];
 
-// Recent attempts
+// Recent attempts (last 8)
 $recent_q = mysqli_query($data, "
     SELECT r.*, u.name AS user_name, s.name AS subject_name
     FROM result r
@@ -192,6 +192,9 @@ $admin_name = $_SESSION['admin_username'] ?? 'Admin';
     <a class="sidebar-item" href="manage_users.php">
       <i class="ti ti-users" style="font-size:15px;"></i> Manage Users
     </a>
+    <a class="sidebar-item" href="manage_subjects.php">
+      <i class="ti ti-books" style="font-size:15px;"></i> Manage Subjects
+    </a>
     <a class="sidebar-item" href="results.php">
       <i class="ti ti-chart-bar" style="font-size:15px;"></i> View Results
     </a>
@@ -296,9 +299,18 @@ $admin_name = $_SESSION['admin_username'] ?? 'Admin';
               <div class="quick-link-sub">View and control accounts</div>
             </div>
           </a>
-          <a class="quick-link" href="results.php">
+          <a class="quick-link" href="manage_subjects.php">
             <div class="quick-link-icon" style="background:#F3E8FF;">
-              <i class="ti ti-chart-bar" style="color:#6B21A8;"></i>
+              <i class="ti ti-books" style="color:#6B21A8;"></i>
+            </div>
+            <div>
+              <div class="quick-link-label">Manage Subjects</div>
+              <div class="quick-link-sub">Add, edit or remove subjects</div>
+            </div>
+          </a>
+          <a class="quick-link" href="results.php">
+            <div class="quick-link-icon" style="background:#E6F1FB;">
+              <i class="ti ti-chart-bar" style="color:#0C447C;"></i>
             </div>
             <div>
               <div class="quick-link-label">View Results</div>
