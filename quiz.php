@@ -8,7 +8,7 @@ include "connection.php";
 //}
 
 $subject = $_GET['subject'] ?? '';
-$allowedSubjects = ['Aptitude', 'Logical Reasoning', 'Data Structure', 'DBMS', 'Web Development'];
+$allowedSubjects = ['Aptitude', 'Logical_Reasoning', 'Data_Structure', 'DBMS', 'Web_Development'];
 
 if (!in_array($subject, $allowedSubjects)) {
     die("Invalid subject.");
