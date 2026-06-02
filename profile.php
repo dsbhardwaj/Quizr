@@ -100,7 +100,7 @@ $overall_pct    = $overall_ques > 0 ? round(($overall_score / $overall_ques) * 1
       color: #6b6b6a; text-decoration: none; transition: all 0.12s;
     }
 
-    .nav-link:hover { background: #f0f0ef; color: #111110; }
+    .nav-link:active { background: #f0f0ef; color: #111110; }
 
     .dropdown { position: relative; display: inline-block; }
 
