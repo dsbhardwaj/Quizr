@@ -276,7 +276,7 @@ if (isset($_POST['add_question'])) {
     <a class="nav-link" href="admin_dashboard.php">
       <i class="ti ti-layout-dashboard" style="font-size:14px;"></i> Dashboard
     </a>
-    <a class="nav-link" href="view_question.php">
+    <a class="nav-link" href="view_questions.php">
       <i class="ti ti-list" style="font-size:14px;"></i> Questions
     </a>
     <a class="nav-link" href="manage_users.php">
