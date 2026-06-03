@@ -1,9 +1,9 @@
 <?php
 
-$host = 'localhost';
-$user = 'root';
+$host = 'sql308.infinityfree.com';
+$user = 'if0_42085094';
 $password = '';
-$db = 'quiz-platform';
+$db = 'if0_42085094_quizr';
 
 $data = mysqli_connect($host,$user,$password,$db);
 if($data -> connect_error)
