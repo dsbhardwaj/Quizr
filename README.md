@@ -38,7 +38,6 @@ This project was built from scratch while learning web development and solving r
 
 ## User Journey
 
-```text
 Register
    ↓
 Login
@@ -54,7 +53,6 @@ Submit
 View Result
    ↓
 Check Scoreboard
-```
 
 Simple.
 
@@ -180,6 +178,60 @@ More importantly, it taught me that building something real is very different fr
 * Detailed User Statistics
 
 ---
+
+
+## Features
+
+* User Registration & Login System
+* Email Verification using PHPMailer and Gmail SMTP
+* Secure Password Hashing
+* Multiple Quiz Categories
+
+  * Aptitude
+  * Logical Reasoning
+  * Data Structures
+  * DBMS
+  * Web Development
+* Real-Time Quiz Submission
+* Scoreboard & Rankings
+* User Dashboard
+* Admin Panel
+
+  * Manage Questions
+  * Manage Users
+  * View Results
+* MySQL Database Integration
+* Responsive UI
+* Live Deployment
+
+
+
+## Tech Stack
+
+**Frontend**
+
+* HTML5
+* CSS3
+* JavaScript
+
+**Backend**
+
+* PHP
+
+**Database**
+
+* MySQL
+
+**Libraries**
+
+* PHPMailer
+
+**Deployment**
+
+* InfinityFree
+
+
+
 
 ## 👩‍💻 Developer
 
