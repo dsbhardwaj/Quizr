@@ -42,12 +42,12 @@ if (isset($_POST['submit'])) {
 
           $mail->Host       = 'smtp.gmail.com';
           $mail->SMTPAuth   = true;
-          $mail->Username   = 'drishtiibhardwaj@gmail.com';
-          $mail->Password   ='';
+          $mail->Username   = 'YOUR_EMAIL_HERE';
+          $mail->Password   ='YOUR_APP_PASSWORD_HERE';
           $mail->SMTPSecure = 'tls';
           $mail->Port       = 587;
 
-          $mail->setFrom('drishtiibhardwaj@gmail.com', 'Quizr');
+          $mail->setFrom('YOUR_EMAIL_HERE', 'Quizr');
           $mail->addAddress($email);
           $mail->isHTML(true);
           $mail->Subject = 'Verify your Quizr account';
@@ -60,7 +60,7 @@ if (isset($_POST['submit'])) {
               <p style='font-size:14px;color:#6b6b6a;margin-bottom:24px;line-height:1.6;'>
                 Thanks for signing up! Click the button below to verify your email address and activate your account.
               </p>
-              <a href='http://quizr.infinityfreeapp.com/verify.php?token=$token'
+              <a href='://quizrapp.httpsinfinityfreeapp.com/verify.php?token=$token'>
                  style='display:inline-block;padding:12px 24px;background:#111110;color:#fff;border-radius:8px;font-size:14px;font-weight:500;text-decoration:none;'>
                 Verify my account
               </a>
